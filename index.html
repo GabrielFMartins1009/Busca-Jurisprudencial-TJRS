@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busca Jurisprudencial</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+        }
+
+        header {
+            background: #1a3a5c;
+            color: white;
+            padding: 20px 40px;
+        }
+
+        header h1 { font-size: 1.4rem; font-weight: 600; }
+        header p { font-size: 0.85rem; opacity: 0.8; margin-top: 4px; }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1rem;
+            color: #1a3a5c;
+            margin-bottom: 16px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        input[type="text"]:focus { border-color: #1a3a5c; }
+
+        button {
+            padding: 12px 24px;
+            background: #1a3a5c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        button:hover { background: #24527a; }
+        button:disabled { background: #aaa; cursor: not-allowed; }
+
+        .perguntas { display: none; }
+
+        .pergunta-item {
+            margin-bottom: 16px;
+        }
+
+        .pergunta-item label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #444;
+        }
+
+        .pergunta-item input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .resultado-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: border 0.2s;
+        }
+
+        .resultado-card:hover { border-color: #1a3a5c; }
+
+        .resultado-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .resultado-numero {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .resultado-assunto {
+            font-size: 0.75rem;
+            background: #e8f0fe;
+            color: #1a3a5c;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .resultado-ementa {
+            font-size: 0.88rem;
+            color: #444;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .resultado-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .resultado-footer a {
+            color: #1a3a5c;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .resultado-footer a:hover { text-decoration: underline; }
+
+        .score-badge {
+            background: #f0f2f5;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+
+        .status {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 16px;
+        }
+
+        .consulta-reformulada {
+            font-size: 0.85rem;
+            background: #f0f7ff;
+            border-left: 3px solid #1a3a5c;
+            padding: 10px 14px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            color: #444;
+        }
+
+        #resultados { display: none; }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Sistema de Busca Jurisprudencial</h1>
+    <p>Tribunal de Justiça do Rio Grande do Sul — Busca Híbrida com Refinamento Conversacional</p>
+</header>
+
+<div class="container">
+
+    <!-- ETAPA 1: Consulta inicial -->
+    <div class="card" id="card-consulta">
+        <h2>Nova Consulta</h2>
+        <div class="input-group">
+            <input type="text" id="input-consulta" 
+                placeholder="Ex: responsabilidade civil por acidente de trânsito" />
+            <button onclick="buscarSemRefinamento()">Buscar</button>
+            <button onclick="iniciarRefinamento()" id="btn-refinar">Refinar</button>
+        </div>
+        <p style="font-size:0.8rem; color:#888; margin-top:10px;">
+            "Buscar" retorna resultados diretamente. "Refinar" faz perguntas para melhorar a busca.
+        </p>
+    </div>
+
+    <!-- ETAPA 2: Perguntas de refinamento -->
+    <div class="card perguntas" id="card-perguntas">
+        <h2>Refinamento da Consulta</h2>
+        <div id="lista-perguntas"></div>
+        <button onclick="buscarRefinado()">Buscar com Refinamento</button>
+    </div>
+
+    <!-- ETAPA 3: Resultados -->
+    <div id="resultados">
+        <div class="card">
+            <h2>Resultados</h2>
+            <div id="status-busca" class="status"></div>
+            <div id="consulta-reformulada"></div>
+            <div id="lista-resultados"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const API = 'http://127.0.0.1:8000';
+    let consultaAtual = '';
+    let perguntasGeradas = [];
+
+    function getConsulta() {
+        return document.getElementById('input-consulta').value.trim();
+    }
+
+    async function buscarSemRefinamento() {
+        const consulta = getConsulta();
+        if (!consulta) return alert('Digite uma consulta.');
+
+        consultaAtual = consulta;
+        mostrarLoading('Buscando decisões...');
+
+        try {
+            const res = await fetch(`${API}/buscar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ consulta, top_k: 5 })
+            });
+            const data = await res.json();
+            mostrarResultados(data.resultados, null);
+        } catch(e) {
+            alert('Erro ao conectar com a API.');
+        }
+    }
+
+    async function iniciarRefinamento() {
+        const consulta = getConsulta();
+        if (!consulta) return alert('Digite uma consulta.');
+
+        consultaAtual = consulta;
+        document.getElementById('btn-refinar').disabled = true;
+        document.getElementById('btn-refinar').textContent = 'Gerando perguntas...';
+
+        try {
+            const res = await fetch(`${API}/refinar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ consulta })
+            });
+            const data = await res.json();
+            perguntasGeradas = data.perguntas;
+            mostrarPerguntas(data.perguntas);
+        } catch(e) {
+            alert('Erro ao gerar perguntas. Verifique se há créditos na API.');
+        } finally {
+            document.getElementById('btn-refinar').disabled = false;
+            document.getElementById('btn-refinar').textContent = 'Refinar';
+        }
+    }
+
+    function mostrarPerguntas(perguntas) {
+        const lista = document.getElementById('lista-perguntas');
+        lista.innerHTML = '';
+
+        perguntas.forEach((p, i) => {
+            lista.innerHTML += `
+                <div class="pergunta-item">
+                    <label>${p}</label>
+                    <input type="text" id="resposta-${i}" placeholder="Sua resposta..." />
+                </div>
+            `;
+        });
+
+        document.getElementById('card-perguntas').style.display = 'block';
+        document.getElementById('resultados').style.display = 'none';
+        document.getElementById('card-perguntas').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function buscarRefinado() {
+        const resposta1 = document.getElementById('resposta-0')?.value.trim();
+        const resposta2 = document.getElementById('resposta-1')?.value.trim();
+
+        if (!resposta1 || !resposta2) return alert('Responda as duas perguntas.');
+
+        mostrarLoading('Reformulando consulta e buscando decisões...');
+
+        try {
+            const res = await fetch(`${API}/buscar_refinado`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    consulta: consultaAtual,
+                    resposta1,
+                    resposta2,
+                    top_k: 5
+                })
+            });
+            const data = await res.json();
+            mostrarResultados(data.resultados, data.consulta_reformulada);
+        } catch(e) {
+            alert('Erro ao buscar com refinamento.');
+        }
+    }
+
+    function mostrarLoading(msg) {
+        document.getElementById('resultados').style.display = 'block';
+        document.getElementById('card-perguntas').style.display = 'none';
+        document.getElementById('lista-resultados').innerHTML = `<div class="loading">${msg}</div>`;
+        document.getElementById('status-busca').textContent = '';
+        document.getElementById('consulta-reformulada').innerHTML = '';
+        document.getElementById('resultados').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function mostrarResultados(resultados, consultaReformulada) {
+        document.getElementById('resultados').style.display = 'block';
+        document.getElementById('status-busca').textContent = 
+            `${resultados.length} decisões encontradas`;
+
+        if (consultaReformulada) {
+            document.getElementById('consulta-reformulada').innerHTML = 
+                `<div class="consulta-reformulada">
+                    <strong>Consulta reformulada:</strong> ${consultaReformulada}
+                </div>`;
+        }
+
+        const lista = document.getElementById('lista-resultados');
+        lista.innerHTML = '';
+
+        resultados.forEach((r, i) => {
+            const data = r.data_julgamento 
+                ? new Date(r.data_julgamento).toLocaleDateString('pt-BR') 
+                : '—';
+
+            lista.innerHTML += `
+                <div class="resultado-card">
+                    <div class="resultado-header">
+                        <span class="resultado-numero">Processo: ${r.numero_processo}</span>
+                        <span class="resultado-assunto">${r.assunto || 'Sem assunto'}</span>
+                    </div>
+                    <div class="resultado-ementa">${r.ementa}</div>
+                    <div class="resultado-footer">
+                        <span>${r.relator} — ${data}</span>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <span class="score-badge">RRF: ${r.score_rrf}</span>
+                            <a href="${r.url}" target="_blank">Ver no TJRS →</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+</script>
+
+</body>
+</html>
