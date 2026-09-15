@@ -13,6 +13,15 @@ load_dotenv()
 
 app = FastAPI()
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = SentenceTransformer('neuralmind/bert-base-portuguese-cased', device=device)
 client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
