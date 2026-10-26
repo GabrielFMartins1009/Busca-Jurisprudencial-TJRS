@@ -86,7 +86,7 @@ def coletar_termo(termo, paginas):
                 doc.get("ementa_completa", [""])[0] if doc.get("ementa_completa") else ""
                 for doc in docs
             ]
-            embeddings = model.encode(ementas, batch_size=10)
+            embeddings = model.encode(ementas, batch_size=10, normalize_embeddings=True)
 
             for doc, embedding in zip(docs, embeddings):
                 numero = doc.get("numero_processo", "")

@@ -62,7 +62,7 @@ def buscar_e_salvar(termo, paginas=1):
             ementa = doc.get("ementa_completa", [""])[0] if doc.get("ementa_completa") else ""
             url_processo = f"https://www.tjrs.jus.br/novo/buscas-solr/?aba=jurisprudencia&q={numero}"
 
-            embedding = model.encode(ementa).astype(np.float32)
+            embedding = model.encode(ementa, normalize_embeddings=True).astype(np.float32)
             embedding_bytes = embedding.tobytes()
 
             try:

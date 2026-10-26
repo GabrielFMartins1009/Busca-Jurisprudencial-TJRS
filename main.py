@@ -8,6 +8,7 @@ from sentence_transformers import SentenceTransformer
 import anthropic
 from dotenv import load_dotenv
 import os
+import re
 
 load_dotenv()
 
@@ -44,7 +45,7 @@ def conectar_banco():
     return conn
 
 def busca_semantica(cursor, consulta, top_k=20):
-    embedding = model.encode(consulta).astype(np.float32).tobytes()
+    embedding = model.encode(consulta, normalize_embeddings=True).astype(np.float32).tobytes()
     cursor.execute("""
         SELECT d.id, d.numero_processo, d.ementa_completa, d.nome_relator,
                d.data_julgamento, d.nome_assunto_cnj, d.url, v.distance
@@ -55,6 +56,12 @@ def busca_semantica(cursor, consulta, top_k=20):
         ORDER BY v.distance ASC
     """, (embedding, top_k))
     return cursor.fetchall()
+
+def preparar_consulta_fts(consulta):
+    # Remove pontuacao (o FTS5 da erro de sintaxe com "." ou ",") e usa OR entre
+    # os termos: o BM25 ranqueia, em vez de exigir todas as palavras na mesma ementa.
+    termos = re.findall(r"\w+", consulta)
+    return " OR ".join(f'"{t}"' for t in termos)
 
 def busca_lexica(cursor, consulta, top_k=20):
     try:
@@ -67,9 +74,10 @@ def busca_lexica(cursor, consulta, top_k=20):
             WHERE fts_decisoes MATCH ?
             ORDER BY score ASC
             LIMIT ?
-        """, (consulta, top_k))
+        """, (preparar_consulta_fts(consulta), top_k))
         return cursor.fetchall()
-    except Exception:
+    except Exception as e:
+        print(f"[busca_lexica] erro: {e}")
         return []
 
 def rrf(resultados_semanticos, resultados_lexicos, k=60):
