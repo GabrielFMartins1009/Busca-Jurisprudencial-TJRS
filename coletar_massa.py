@@ -99,8 +99,8 @@ def coletar_termo(termo, paginas):
                         INSERT INTO decisoes 
                         (numero_processo, ementa_completa, nome_relator, orgao_julgador,
                          data_julgamento, data_publicacao, nome_assunto_cnj,
-                         tipo_processo, nome_tribunal, secao, url, embedding)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                         tipo_processo, nome_tribunal, secao, url)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """, (
                         numero, ementa,
                         doc.get("nome_relator", ""),
@@ -111,8 +111,7 @@ def coletar_termo(termo, paginas):
                         doc.get("tipo_processo", ""),
                         doc.get("nome_tribunal", ""),
                         doc.get("secao", ""),
-                        url_processo,
-                        embedding_bytes
+                        url_processo
                     ))
 
                     decisao_id = cursor.lastrowid
