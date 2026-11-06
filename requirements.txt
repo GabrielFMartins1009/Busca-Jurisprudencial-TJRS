@@ -1,0 +1,14 @@
+# Testado com Python 3.11 (Windows).
+# torch: com GPU NVIDIA, instale antes com:
+#   py -3.11 -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+# Sem GPU, o pip instala a versao para CPU e o sistema funciona, so que mais lento.
+fastapi==0.141.1
+uvicorn==0.52.4
+sentence-transformers==5.5.0
+transformers==5.8.1
+torch==2.6.0
+sqlite-vec==0.1.9
+anthropic==0.125.0
+python-dotenv==1.2.3
+requests==2.34.2
+numpy==2.4.4
