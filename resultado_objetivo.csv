@@ -1,0 +1,11 @@
+consulta,n_sem,n_lex,sem_lex_top5,sem_hib_top5,lex_hib_top5,sem_lex_top20,hib_so_sem,hib_so_lex,hib_ambas,hib_promovidos
+negativação indevida por dívida já paga,20,20,0,3,2,0,3,2,0,0
+responsabilidade civil por acidente de trânsito,20,20,1,3,2,3,1,1,3,1
+vício oculto em veículo comprado de concessionária,20,20,0,3,1,3,1,1,3,1
+união estável e partilha de bens,20,20,1,2,3,8,0,0,5,1
+fiança locatícia e fiador,20,20,0,3,2,1,2,2,1,0
+erro médico em cirurgia,20,20,0,2,2,3,1,1,3,1
+dano moral em relação de consumo,20,20,0,3,2,0,3,2,0,0
+execução de título extrajudicial,20,20,0,3,2,0,3,2,0,0
+inventário e partilha de herança,20,20,0,3,2,0,3,2,0,0
+plano de saúde negativa de cobertura,20,20,1,3,2,2,2,1,2,1

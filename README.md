@@ -56,7 +56,7 @@ O arquivo `jurisprudencia.db` **não está neste repositório** (tem cerca de 80
 **1. Iniciar a API** (porta 8000), na raiz do projeto:
 
 ```bash
-py -3.11 -m uvicorn main:app --port 8000
+py -3.11 -m uvicorn main:app
 ```
 
 Aguarde a mensagem `Application startup complete`: o modelo BERTimbau é carregado na inicialização. Não use `--reload` (ele recarrega o modelo a cada alteração de arquivo e atrapalha a demonstração).
@@ -83,14 +83,15 @@ A API e o frontend foram feitos para uso local: o CORS está liberado para qualq
 | `coletar_massa.py` | Coleta em massa do portal do TJRS e gera os embeddings |
 | `salvar_decisoes.py` | Coleta de um único termo (versão simples da coleta) |
 | `regerar_embeddings.py` | Regera todos os embeddings com vetores normalizados (rodar com a API parada) |
-| `verificar_banco.py` | Conferência rápida do banco (contagem e distribuição por período) |
 | `medir_tokens.py` | Mede o tamanho das ementas em tokens do BERTimbau (truncamento em 512) |
 | `medir_tempos.py` | Mede os tempos de busca e de refinamento |
+| `comparar_modos.py` | Julgamento cego dos modos semântico, léxico e híbrido (gera a lista para julgar e calcula a precisão@5), sem uso do LLM |
+| `testes_objetivos.py` | Teste objetivo sem LLM: sobreposição entre busca semântica, léxica e híbrida (gera `resultado_objetivo.md` e `.csv`) |
 | `Figuras/` | Figuras usadas no artigo |
 
 ## Limitações conhecidas
 
-- A avaliação do sistema é qualitativa e de pequena escala; não há métricas formais de recuperação.
+- A avaliação do sistema é qualitativa e de pequena escala; o teste objetivo mede apenas a sobreposição entre as buscas, não há métricas formais de recuperação (precisão, MRR).
 - 80,5% das ementas excedem o limite de 512 tokens do modelo e são truncadas na vetorização.
 - A base é predominantemente cível e concentrada em decisões de 2026.
 - O refinamento depende de uma API paga e é mais lento que a busca direta.
